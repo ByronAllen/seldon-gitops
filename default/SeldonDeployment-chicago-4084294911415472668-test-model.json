@@ -1,0 +1,64 @@
+{
+    "kind": "SeldonDeployment",
+    "apiVersion": "machinelearning.seldon.io/v1alpha2",
+    "metadata": {
+        "name": "chicago-4084294911415472668-test-model",
+        "namespace": "default",
+        "creationTimestamp": null
+    },
+    "spec": {
+        "name": "chicago-4084294911415472668-test-model",
+        "predictors": [
+            {
+                "name": "default",
+                "graph": {
+                    "name": "chicago-4084294911415472668-test-model-default",
+                    "implementation": "TENSORFLOW_SERVER",
+                    "endpoint": {
+                        "type": "REST"
+                    },
+                    "modelUri": "gs://chicago_taxi_rnn/models/4084294911415472668/taxi_chicago_rnn_training_20190919_162050/2/saved_model.pb",
+                    "serviceAccountName": "production-ml-rnd-sa@production-ml-rnd.iam.gserviceaccount.com"
+                },
+                "componentSpecs": [
+                    {
+                        "metadata": {
+                            "creationTimestamp": "2020-03-07T19:33:26Z"
+                        },
+                        "spec": {
+                            "containers": [
+                                {
+                                    "name": "chicago-4084294911415472668-test-model-default",
+                                    "resources": {
+                                        "limits": {
+                                            "cpu": "8",
+                                            "memory": "8Gi"
+                                        },
+                                        "requests": {
+                                            "cpu": "4",
+                                            "memory": "4Gi"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "engineResources": {},
+                "svcOrchSpec": {},
+                "traffic": 100,
+                "explainer": {
+                    "containerSpec": {
+                        "name": "",
+                        "resources": {}
+                    }
+                }
+            }
+        ],
+        "annotations": {
+            "seldon.io/engine-seldon-log-messages-externally": "true"
+        }
+    },
+    "status": {}
+}
