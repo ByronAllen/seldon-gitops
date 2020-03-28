@@ -13,8 +13,11 @@
                 "name": "default",
                 "graph": {
                     "name": "ch-6015126125948310070v3-default",
+                    "type": "UNKNOWN_TYPE",
                     "implementation": "TENSORFLOW_SERVER",
                     "endpoint": {
+                        "service_host": "localhost",
+                        "service_port": 9000,
                         "type": "REST"
                     },
                     "modelUri": "gs://seldon_deploy_uk/chicago_taxi/6015126125948310070/taxi_chicago_rnn_training_20200312_183325_v3/tfserving",
@@ -29,6 +32,7 @@
                             "containers": [
                                 {
                                     "name": "ch-6015126125948310070v3-default",
+                                    "image": "seldonio/tfserving-proxy_rest:0.7",
                                     "resources": {
                                         "limits": {
                                             "cpu": "2",
@@ -38,7 +42,13 @@
                                             "cpu": "500m",
                                             "memory": "512Mi"
                                         }
-                                    }
+                                    },
+                                    "volumeMounts": [
+                                        {
+                                            "name": "podinfo",
+                                            "mountPath": "/etc/podinfo"
+                                        }
+                                    ]
                                 }
                             ]
                         },
@@ -59,8 +69,73 @@
                 ],
                 "replicas": 1,
                 "engineResources": {},
+                "labels": {
+                    "version": "default"
+                },
                 "svcOrchSpec": {},
-                "traffic": 100,
+                "traffic": 90,
+                "explainer": {
+                    "containerSpec": {
+                        "name": "",
+                        "resources": {}
+                    }
+                }
+            },
+            {
+                "name": "canary",
+                "graph": {
+                    "name": "ch-6015126125948310070v3-canary",
+                    "implementation": "TENSORFLOW_SERVER",
+                    "endpoint": {
+                        "type": "REST"
+                    },
+                    "modelUri": "gs://seldon_deploy_uk/chicago_taxi/6015126125948310070/taxi_chicago_rnn_training_20200312_183325_v1/tfserving",
+                    "serviceAccountName": "seldon-deploy@servian-uk-training.iam.gserviceaccount.com"
+                },
+                "componentSpecs": [
+                    {
+                        "metadata": {
+                            "creationTimestamp": "2020-03-28T11:27:21Z"
+                        },
+                        "spec": {
+                            "containers": [
+                                {
+                                    "name": "ch-6015126125948310070v3-canary",
+                                    "resources": {
+                                        "limits": {
+                                            "cpu": "2",
+                                            "memory": "2Gi"
+                                        },
+                                        "requests": {
+                                            "cpu": "500m",
+                                            "memory": "512Mi"
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "hpaSpec": {
+                            "minReplicas": 1,
+                            "maxReplicas": 2,
+                            "metrics": [
+                                {
+                                    "type": "Resource",
+                                    "resource": {
+                                        "name": "memory",
+                                        "targetAverageUtilization": 50
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ],
+                "replicas": 1,
+                "annotations": {
+                    "seldon.io/canary": "true"
+                },
+                "engineResources": {},
+                "svcOrchSpec": {},
+                "traffic": 10,
                 "explainer": {
                     "containerSpec": {
                         "name": "",
